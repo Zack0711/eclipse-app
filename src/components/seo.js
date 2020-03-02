@@ -68,7 +68,9 @@ function SEO({ description, lang, meta, title }) {
           content: metaDescription,
         },
       ].concat(meta)}
-    />
+    >
+      <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDCyy1L_lArGhCrWmzyuvuFAB-VpclT1yg&callback=initMap" async defer></script>
+    </Helmet>
   )
 }
 

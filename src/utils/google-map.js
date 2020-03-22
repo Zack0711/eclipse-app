@@ -4,7 +4,7 @@ import {
 
 const defaultSettings = {
   map: {
-    zoom: 9,
+    zoom: 7,
     zoomControl: true,
     fullscreenControl: false,
     streetViewControl: false,
@@ -24,6 +24,7 @@ const defaultSettings = {
 const getCurrentPosition = () => new Promise( resolve => {
   if(navigator.geolocation) {
     navigator.geolocation.getCurrentPosition( position => {
+      console.log(position)
       const pos = {
         lat: position.coords.latitude,
         lng: position.coords.longitude        
@@ -61,7 +62,7 @@ const calculateAndDisplayRoute = (directionsDisplay, directionsService,markerArr
       //document.getElementById('warnings-panel').innerHTML = '<b>' + response.routes[0].warnings + '</b>';
       directionsDisplay.setDirections(response);
 
-      displayRoute(start, end, directionsService, directionsDisplay);
+      displayRoute(start, end, directionsService, directionsDisplay, travelMode);
       //showSteps(response, markerArray, stepDisplay, map);
     } else {
 
@@ -73,7 +74,7 @@ const calculateAndDisplayRoute = (directionsDisplay, directionsService,markerArr
       }, (response, status) => {
         directionsDisplay.setDirections(response);
         if (status === 'OK') {
-          displayRoute(start, end, directionsService, directionsDisplay);
+          displayRoute(start, end, directionsService, directionsDisplay, travelMode);
         }
       })
 
@@ -81,11 +82,11 @@ const calculateAndDisplayRoute = (directionsDisplay, directionsService,markerArr
   });
 }
 
-const displayRoute = (origin, destination, service, display) => {
+const displayRoute = (origin, destination, service, display, travelMode = 'DRIVING') => {
   service.route({
     origin: origin,
     destination: destination,
-    travelMode: 'DRIVING',
+    travelMode,
   }, function(response, status) {
     if (status === 'OK') {
       display.setDirections(response);
@@ -123,10 +124,18 @@ class GMap {
     this.panelInstance = instance.panel;
     this.popupInstance = instance.popup;
 
+    this.clickListener = null
+    this.activeMarker = null
+
     this.settings = Object.assign({}, defaultSettings.map, settings);
-    this.markerArray = [];
+    this.markerArray = []
+    this.cityMarkerArray = []
+    this.pathArray = []
+    //this.travelMode = 'TRANSIT'
     this.travelMode = 'DRIVING';
-    //this.Popup = createPopupClass();
+    this.mapClick = e => {
+      this.movePopup(e.latLng.lat(), e.latLng.lng())
+    }
 
     this.initMap = this.initMap.bind(this);
     this.addMarker = this.addMarker.bind(this);
@@ -134,7 +143,18 @@ class GMap {
     this.setPanorama = this.setPanorama.bind(this);
 
     this.clearMarker = this.clearMarker.bind(this);
+    this.setMapClick = this.setMapClick.bind(this)
+    this.movePopup = this.movePopup.bind(this)
     //window.addEventListener("load", this.initMap);
+  }
+
+  setMapClick(callBack) {
+    google.maps.event.removeListener(this.clickListener)
+    this.mapClick = e => {
+      const clickPos = {lat: e.latLng.lat(), lng: e.latLng.lng() }
+      callBack(clickPos)
+    }
+    this.clickListener = this.map.addListener('click', this.mapClick)
   }
 
   getPos(lat = 0, lng = 0) {
@@ -152,14 +172,44 @@ class GMap {
   movePopup(lat = 23.4811899, lng = 120.4419393) {
     this.popup.position = this.getPos(lat, lng);
     this.popup.draw();
+
+    this.activeMarker.setMap(null)
+    this.activeMarker = new google.maps.Marker({ 
+      map: this.map,
+      icon: {
+        path: 'M -2,0 0,-2 2,0 0,2 z',
+        strokeColor: '#f00',
+        fillColor: '#f00',
+        scale: 3
+      },
+      position: {lat, lng}
+    })
+
   }
 
   addMarker(data, clickCallBack) {
-    const newMarker = new google.maps.Marker(Object.assign({ map: this.map }, data));
+
+    const newMarker = new google.maps.Marker(Object.assign({ 
+      map: this.map,
+      icon: {
+        path: 'M -2,0 0,-2 2,0 0,2 z',
+        strokeColor: '#00F',
+        fillColor: '#00F',
+        scale: 3
+      },
+    }, data));
+
+    this.cityMarkerArray.push(newMarker)
+    /*
     newMarker.addListener('click', () => {
       this.movePopup(data.position.lat, data.position.lng);
       if(typeof clickCallBack === 'function') clickCallBack(data);
     })
+    */
+  }
+
+  clearCityMarker() {
+    clearMarker(this.cityMarkerArray);    
   }
 
   clearMarker() {
@@ -169,6 +219,14 @@ class GMap {
   drawPath(data) {
     const newPath = new google.maps.Polyline(data);
     newPath.setMap(this.map);
+    this.pathArray.push(newPath)
+  }
+
+  clearPath() {
+    this.pathArray.forEach( d => {
+      d.setMap(null)
+    })
+    this.pathArray = []
   }
 
   setDirections(data) {
@@ -209,7 +267,6 @@ class GMap {
     const Popup = createPopupClass();
 
     this.map = new google.maps.Map(this.mapInstance, this.settings);
-    console.log(this.map)
     this.panorama = new google.maps.StreetViewPanorama(this.mapInstance, defaultSettings.streeView);
 
     this.directionsService = new google.maps.DirectionsService;
@@ -219,8 +276,25 @@ class GMap {
       panel: this.panelInstance
     });
 
+    this.clickListener = this.map.addListener('click', this.mapClick)
+
     this.popup = new Popup( this.getPos(23.4811899, 120.4419393), this.popupInstance);
     this.popup.setMap(this.map);
+
+    this.activeMarker = new google.maps.Marker({ 
+      map: this.map,
+      icon: {
+        path: 'M -2,0 0,-2 2,0 0,2 z',
+        strokeColor: '#f00',
+        fillColor: '#f00',
+        scale: 3
+      },
+      position: {
+        lat: 23.4811899,
+        lng: 120.4419393
+      }
+    })
+
   }
 }
 

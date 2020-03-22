@@ -1,0 +1,30 @@
+@import '../../mixin'
+
+html
+  font-family 'Helvetica', 'Arial', 'STHeiti', 'Microsoft JhengHei', sans-serif
+  color $dark
+  
+*
+  box-sizing border-box
+
+#gatsby-focus-wrapper
+  width 100vw
+  min-height 100vh
+  $display-flex(column)
+  
+  main
+    flex 1 0 0
+    width 100vw
+    $display-flex(row, center, stretch)
+  
+  .content
+    flex 1 0 0
+
+a
+  &:link
+  &:visited
+    color $dark
+    text-decoration none
+  
+  &:hover
+    color $gery

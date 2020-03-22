@@ -4,10 +4,12 @@ import Layout from "../components/layout"
 import SEO from "../components/seo"
 import Map from '../components/map'
 
-window.IS_MAP_READY = false
-window.initMap = () => {
-	console.log('initMap')
-	IS_MAP_READY = true
+if(process.browser){
+  window.IS_MAP_READY = false
+  window.initMap = () => {
+      console.log('initMap')
+      IS_MAP_READY = true
+  }   
 }
 
 const IndexPage = () => (

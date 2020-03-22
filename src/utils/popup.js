@@ -41,20 +41,24 @@ function createPopupClass() {
 
   /** Called each frame when the popup needs to draw itself. */
   Popup.prototype.draw = function() {
-    var divPosition = this.getProjection().fromLatLngToDivPixel(this.position);
+    if(this.getProjection()){
 
-    // Hide the popup when it is far out of view.
-    var display =
-        Math.abs(divPosition.x) < 4000 && Math.abs(divPosition.y) < 4000 ?
-        'block' :
-        'none';
+      var divPosition = this.getProjection().fromLatLngToDivPixel(this.position);
 
-    if (display === 'block') {
-      this.containerDiv.style.left = divPosition.x + 'px';
-      this.containerDiv.style.top = (divPosition.y - 40) + 'px';
-    }
-    if (this.containerDiv.style.display !== display) {
-      this.containerDiv.style.display = display;
+      // Hide the popup when it is far out of view.
+      var display =
+          Math.abs(divPosition.x) < 4000 && Math.abs(divPosition.y) < 4000 ?
+          'block' :
+          'none';
+
+      if (display === 'block') {
+        this.containerDiv.style.left = divPosition.x + 'px';
+        this.containerDiv.style.top = (divPosition.y - 10) + 'px';
+      }
+      if (this.containerDiv.style.display !== display) {
+        this.containerDiv.style.display = display;
+      }
+
     }
   };
 

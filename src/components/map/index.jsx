@@ -5,9 +5,12 @@ import classNames from "classnames"
 
 import Button from '@material-ui/core/Button'
 import ListIcon from '@material-ui/icons/List'
+import Menu from '@material-ui/core/Menu'
+import MenuItem from '@material-ui/core/MenuItem'
 
 import Popup from './popup'
 import Panel from './panel'
+import Timer from './timer'
 
 import GMap from '../../utils/google-map';
 import {
@@ -43,22 +46,12 @@ const Map = props => {
   const panelEl = useRef(null)
   const popupEl = useRef(null)
 
-  const { allCitiesCsv } = useStaticQuery(graphql`
-    query {
-      allCitiesCsv {
-        nodes {
-          lat
-          lng
-          name
-        }
-      }
-    }
-  `)
-
   const [ panelShown, setPanelShown] = useState(false)
   const [ activePos, setActivePos] = useState(locationList[0].position)
   const [ cityData, setCityData] = useState([])
   const [ settings, setSettings] = useState(eclipseSettings[0])
+  const [ isMapReady, setIsMapReady] = useState(false)
+  const [anchorEl, setAnchorEl] = React.useState(null)
 
   const toggleDirectionPanel = async open => {
     if(open) {
@@ -117,11 +110,12 @@ const Map = props => {
   }
 
   const pickUpSettings = data => {
+    setAnchorEl(null)
     setSettings(data)
   }
 
   const countCityData = () => {
-    const newCityData = allCitiesCsv.nodes.map( city => ({
+    const newCityData = cities.map( city => ({
       ...city,
       lat: parseFloat(city.lat),
       lng: parseFloat(city.lng),
@@ -131,31 +125,57 @@ const Map = props => {
         ? b.eclipseData.duration - a.eclipseData.duration
         : b.eclipseData.coverage - a.eclipseData.coverage
     })
+
     setCityData(newCityData)
   }
 
-  useEffect( () => {
-    if(!map){
-      map = new GMap({
-        map: mapEl.current,
-        panel: panelEl.current,
-        popup: popupEl.current,        
-      })
-    }
+  const handlMenuClick = (event) => {
+    setAnchorEl(event.currentTarget)
+  }
 
-    if(process.browser){
-      if(window.IS_MAP_READY){
-        mapInitialize()
-      }else{
-        window.initMap = () => mapInitialize()
-      }      
-    }
+  const handleMenuClose = () => {
+    setAnchorEl(null)
+  }
+
+  useEffect( () => {
+    ;(async () => {
+
+      let dT = Infinity
+      let selectedSettings = null
+      const current = new Date().getTime()
+
+      eclipseSettings.forEach(settings => {
+        const dTime = settings.date.getTime() - current
+        if (dTime >= 0 && dTime < dT) {
+          dT = dTime
+          selectedSettings = settings
+        }
+      })
+
+      pickUpSettings(selectedSettings)
+
+      if(!map){
+        map = new GMap({
+          map: mapEl.current,
+          panel: panelEl.current,
+          popup: popupEl.current,        
+        })
+      }
+
+      if(process.browser){
+        if(window.IS_MAP_READY){
+          setIsMapReady(true)
+        }else{
+          window.initMap = () => setIsMapReady(true)
+        }
+      }
+    })()
   }, [])
 
   useEffect( () => {
     if(cityData.length > 0){
 
-      console.log(settings.pathCoordsR1[Math.floor(settings.pathCoordsR1.length/2)])
+      //console.log(settings.pathCoordsR1[Math.floor(settings.pathCoordsR1.length/2)])
 
       const newActivePos = cityData[0].eclipseData.isEclipse && cityData[0].eclipseData.duration
         ? cityData[0] : settings.pathCoordsR1[Math.floor(settings.pathCoordsR1.length/2)]
@@ -177,6 +197,10 @@ const Map = props => {
     }
   }, [settings])
 
+  useEffect( () => {
+    if(isMapReady) mapInitialize()
+  }, [isMapReady])
+
   return (
     <div className='map'>
       <div className='map__wrap'>
@@ -190,24 +214,30 @@ const Map = props => {
           </div>
           <div className="map__data-switch">
             <div className="map__data-switch__title">
-              { settings.name }
-              <Button><ListIcon/></Button>
+              <Button aria-haspopup="true" onClick={handlMenuClick}>
+                已選取的日食資料：{ settings.name } <ListIcon />
+              </Button>
             </div>
-            <div className="map__data-switch__list">
+            <Menu
+              anchorEl={anchorEl}
+              keepMounted
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+            >
               {
                 eclipseSettings.map( d => (
-                  <div 
+                  <MenuItem 
                     onClick={() => pickUpSettings(d)}
                     className={
                       classNames('map__data-switch__item', { 'map__data-switch__item--active': d.name === settings.name })
                     }
                   >
                     { d.name }
-                  </div>
+                  </MenuItem>
                 ))
               }
-            </div>
-          </div>
+            </Menu>
+         </div>
         </div>
         <div className="map__cities">
           <div className="map__city-item" >
@@ -217,7 +247,7 @@ const Map = props => {
             <div className="map__city-item-maxmag">最大食分</div>              
           </div>
           {
-            cityData.map( city => (
+            cityData.filter(city => city.eclipseData.isEclipse).map( city => (
               <div 
                 className="map__city-item" 
                 key={city.name}

@@ -673,6 +673,7 @@ const pathCoordsR1 = [
 
 export default {
   name: '2028-01-26',
+  date: new Date('2028-01-26'),
   elements,
   pathCoordsB1,
   pathCoordsB2,

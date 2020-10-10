@@ -804,6 +804,7 @@ const pathCoordsR1 = [
 
 export default {
   name: '2020-06-21',
+  date: new Date('2020-06-21'),
   elements,
   pathCoordsB1,
   pathCoordsB2,

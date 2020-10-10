@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button'
 import CommuteIcon from '@material-ui/icons/Commute'
 
 import { IconLoader, IconWeather } from '../../icons'
+import Timer from '../timer'
 
 import { getWeatherData } from '../../../utils/weather'
 import { 
@@ -29,6 +30,7 @@ const Popup = ({ getRef, openDirection, pos, elements }) => {
     } = data
 
     const eclipseData = loc_circ(pos.lat, pos.lng, elements)
+
     const weatherId = weather[0].id
     const temperature = `${(main.temp - 273.15).toFixed(1)}°C`
     let code = '800'
@@ -86,6 +88,7 @@ const Popup = ({ getRef, openDirection, pos, elements }) => {
                           時間：{info.eclipseData.duration.toFixed(2)}秒<br/>
                           覆蓋率：{info.eclipseData.coverage.toFixed(2)}<br/>
                           最大食分：{info.eclipseData.maxmag.toFixed(2)}
+                          <Timer pos={pos} elements={elements} />
                         </>
                       ):( <>無日食資料</>)
                     }

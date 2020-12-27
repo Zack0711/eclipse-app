@@ -3,6 +3,10 @@ import PropTypes from "prop-types"
 
 import Button from '@material-ui/core/Button'
 import CommuteIcon from '@material-ui/icons/Commute'
+import AssignmentIcon from '@material-ui/icons/Assignment'
+import Menu from '@material-ui/core/Menu'
+
+import EclipseInfo from './eclipse-info'
 
 import { IconLoader, IconWeather } from '../../icons'
 import Timer from '../timer'
@@ -20,6 +24,7 @@ const Popup = ({ getRef, openDirection, pos, elements }) => {
 
   const [info, setInfo] = useState(null)
   const [fetching, setFetching] = useState(false)
+  const [ anchorEl, setAnchorEl] = useState(null)
 
   const setPopupInfo = data => {
     const {
@@ -50,6 +55,14 @@ const Popup = ({ getRef, openDirection, pos, elements }) => {
     })
   }
 
+  const handlMenuClick = (event) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleMenuClose = () => {
+    setAnchorEl(null)
+  }
+
   useEffect(() => {
     ;(async () => {
       setFetching(true)
@@ -58,6 +71,8 @@ const Popup = ({ getRef, openDirection, pos, elements }) => {
       setFetching(false)
     })()
   },[pos])
+
+  info && console.log(info.eclipseData)
 
   return (
     <div className='popup' ref={getRef}>
@@ -81,6 +96,23 @@ const Popup = ({ getRef, openDirection, pos, elements }) => {
                         <IconWeather code={info.code} />
                         <div className='popup__temperature'>{info.temperature}</div>
                       </div>
+                      {
+                        info.eclipseData.isEclipse && (
+                          <>
+                            <Button onClick={handlMenuClick}>
+                              <AssignmentIcon />
+                            </Button>
+                            <Menu
+                              anchorEl={anchorEl}
+                              keepMounted
+                              open={Boolean(anchorEl)}
+                              onClose={handleMenuClose}
+                            >
+                              <EclipseInfo data={info.eclipseData} />
+                            </Menu>
+                          </>
+                        )
+                      }
                     </div>
                     {
                       info.eclipseData.isEclipse ? (

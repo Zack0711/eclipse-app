@@ -8,6 +8,8 @@ import ListIcon from '@material-ui/icons/List'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
 
+import moment from "moment"
+
 import Popup from './popup'
 import Panel from './panel'
 import Timer from './timer'
@@ -51,7 +53,7 @@ const Map = props => {
   const [ cityData, setCityData] = useState([])
   const [ settings, setSettings] = useState(eclipseSettings[0])
   const [ isMapReady, setIsMapReady] = useState(false)
-  const [anchorEl, setAnchorEl] = React.useState(null)
+  const [ anchorEl, setAnchorEl] = useState(null)
 
   const toggleDirectionPanel = async open => {
     if(open) {
@@ -145,6 +147,12 @@ const Map = props => {
       const current = new Date().getTime()
 
       eclipseSettings.forEach(settings => {
+
+        const { lat, lng} = settings.pathCoordsR1[0]
+        const { mid, c3, c4 } = loc_circ(parseFloat(lat), parseFloat(lng), settings.elements)
+
+        if (c3.date) settings.date = new Date(c3.date)
+
         const dTime = settings.date.getTime() - current
         if (dTime >= 0 && dTime < dT) {
           dT = dTime
@@ -215,7 +223,7 @@ const Map = props => {
           <div className="map__data-switch">
             <div className="map__data-switch__title">
               <Button aria-haspopup="true" onClick={handlMenuClick}>
-                已選取的日食資料：{ settings.name } <ListIcon />
+                已選取的日食資料：{ moment(settings.date).format('YYYY-MM-DD') } <ListIcon />
               </Button>
             </div>
             <Menu
@@ -232,7 +240,7 @@ const Map = props => {
                       classNames('map__data-switch__item', { 'map__data-switch__item--active': d.name === settings.name })
                     }
                   >
-                    { d.name }
+                    { moment(d.date).format('YYYY-MM-DD') }
                   </MenuItem>
                 ))
               }

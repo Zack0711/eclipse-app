@@ -1,3 +1,5 @@
+import moment from "moment"
+
 const elements = new Array(
 2459021.778650,   7.0,  -4.0,   4.0,    69.4,
     0.15426011,    0.53115284,    0.00002584,   -0.00000693,
@@ -804,6 +806,7 @@ const pathCoordsR1 = [
 
 export default {
   name: '2020-06-21',
+  // date: moment.utc('2020-06-21'),
   date: new Date('2020-06-21'),
   elements,
   pathCoordsB1,

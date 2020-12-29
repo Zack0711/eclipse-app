@@ -21,9 +21,9 @@ import {
   pathCoordsR1,
 } from '../../utils/settings'
 
-import eclipseSettings from '../../data'
+// import eclipseSettings from '../../data'
 
-import eclipseData from '../../data/2021'
+import eclipseSettings from '../../data/2021'
 
 import { cities } from '../../utils/cities'
 
@@ -86,30 +86,28 @@ const Map = props => {
 
   const drawMapPath = () => {
     if(map) {
+      const {
+        firstBlue,
+        secondBlue,
+        firstRed,
+      } = settings.data
+
+      const drawPath = (coords, color) => {
+        map.drawPath({
+          path: coords,
+          geodesic: true,
+          strokeColor: color,
+          strokeOpacity: 0.65,
+          strokeWeight: 2    
+        })        
+      }
+
       map.clearPath()
-      map.drawPath({
-        path: settings.pathCoordsB1,
-        geodesic: true,
-        strokeColor: '#3300FF',
-        strokeOpacity: 0.65,
-        strokeWeight: 2    
-      })
 
-      map.drawPath({
-        path: settings.pathCoordsB2,
-        geodesic: true,
-        strokeColor: '#3300FF',
-        strokeOpacity: 0.65,
-        strokeWeight: 2
-      })
+      firstBlue.forEach( coords => drawPath(coords, '#3300FF') )
+      secondBlue.forEach( coords => drawPath(coords, '#3300FF') )
+      firstRed.forEach( coords => drawPath(coords, '#FF0000') )
 
-      map.drawPath({
-        path: settings.pathCoordsR1,
-        geodesic: true,
-        strokeColor: '#FF0000',
-        strokeOpacity: 0.65,
-        strokeWeight: 2
-      })      
     }
   }
 
@@ -123,7 +121,7 @@ const Map = props => {
       ...city,
       lat: parseFloat(city.lat),
       lng: parseFloat(city.lng),
-      eclipseData: loc_circ(parseFloat(city.lat), parseFloat(city.lng), settings.elements),
+      eclipseData: loc_circ(parseFloat(city.lat), parseFloat(city.lng), settings.data.elements),
     })).sort( function(a,b){
       return (a.eclipseData.duration !== b.eclipseData.duration)
         ? b.eclipseData.duration - a.eclipseData.duration
@@ -150,12 +148,13 @@ const Map = props => {
 
       eclipseSettings.forEach(settings => {
 
-        const { lat, lng} = settings.pathCoordsR1[0]
-        const { mid, c3, c4 } = loc_circ(parseFloat(lat), parseFloat(lng), settings.elements)
+        const { lat, lng} = settings.data.firstRed[0][0]
+        const { mid, c3, c4 } = loc_circ(parseFloat(lat), parseFloat(lng), settings.data.elements)
 
-        if (c3.date) settings.date = new Date(c3.date)
-
-        const dTime = settings.date.getTime() - current
+        const c3DateTime = c3.date ? new Date(c3.date).getTime() : 0
+        //if (c3.date) settings.date = new Date(c3.date)
+        //const dTime = settings.date.getTime() - current
+        const dTime = c3DateTime - current
         if (dTime >= 0 && dTime < dT) {
           dT = dTime
           selectedSettings = settings
@@ -180,19 +179,18 @@ const Map = props => {
         }
       }
 
-      console.log(eclipseData)
+      // console.log(eclipseData)
     })()
   }, [])
 
   useEffect( () => {
     if(cityData.length > 0){
 
-      //console.log(settings.pathCoordsR1[Math.floor(settings.pathCoordsR1.length/2)])
-
+      const firstRed = settings.data.firstRed[0]
       const newActivePos = cityData[0].eclipseData.isEclipse && cityData[0].eclipseData.duration
-        ? cityData[0] : settings.pathCoordsR1[Math.floor(settings.pathCoordsR1.length/2)]
+        ? cityData[0] : firstRed[Math.floor(firstRed.length/2)]
 
-      changeActivePos(newActivePos)
+      // changeActivePos(newActivePos)
       cityData.forEach( d => {
         map.addMarker({
           position: { lat: d.lat, lng: d.lng},
@@ -203,14 +201,16 @@ const Map = props => {
   }, [cityData])
 
   useEffect( () => {
+    /*
     if(process.browser && window.IS_MAP_READY){
       drawMapPath()
       countCityData()
     }
+    */
   }, [settings])
 
   useEffect( () => {
-    if(isMapReady) mapInitialize()
+    // if(isMapReady) mapInitialize()
   }, [isMapReady])
 
   return (
@@ -277,7 +277,7 @@ const Map = props => {
       <Popup 
         pos={activePos}
         getRef={popupEl}
-        elements = {settings.elements}
+        elements = {settings.data.elements}
         openDirection={() => toggleDirectionPanel(true)}
       />
     </div>

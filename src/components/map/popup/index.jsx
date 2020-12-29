@@ -72,8 +72,6 @@ const Popup = ({ getRef, openDirection, pos, elements }) => {
     })()
   },[pos])
 
-  info && console.log(info.eclipseData)
-
   return (
     <div className='popup' ref={getRef}>
       {

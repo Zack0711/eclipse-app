@@ -24,8 +24,6 @@ const EclipseInfo = ({ data }) => {
     data.c3.date && newRows.push({ label: '環食終', ...data.c3})
     data.c4.date && newRows.push({ label: '復圓', ...data.c4})
 
-    console.log(data)
-    console.log(newRows)
     setRows(newRows)
   }, [data])
 

@@ -92,22 +92,27 @@ const parseSingleSolarHtml =  url => new Promise( async (resolve, reject) => {
 
 const parseSolarListHtml = async () => {
   await mkdirp.sync(__dirname + '/data/2021')
-  //await mkdirp.(__dirname + '/data/2021')
 
   const url = 'https://eclipse.gsfc.nasa.gov/SEgoogle/SEgoogle2021.html'
   const $ = await parseHtmlPage(url)
 
   const solarList = []
+  const solarElementsList = $('table.datatab .theading td').parent().parent().next('tbody').find('tr')
 
-  $('table.datatab .theading td').parent().parent().next('tbody').find('tr').each( async (i, elem) => {
-    const googlePageUrl = $(elem).find('td a[target="GOOGLE"]').attr('href').replace(/\.\.\//, '')
+  for (let i = 0; i < solarElementsList.length; i += 1) {
+    const elem = $(solarElementsList[i])
 
-    const date = $(elem).find('td a[target="GLOBE"]').text().trim()
+    const googlePageUrl = elem.find('td a[target="GOOGLE"]').attr('href').replace(/\.\.\//, '')
+
+    const date = elem.find('td a[target="GLOBE"]').text().trim()
     const fileName = date.split(' ').join('-')
-    const type = $(elem).find('td a[target="GOOGLE"]').text().trim()
+    const type = elem.find('td a[target="GOOGLE"]').text().trim()
     const url = `${BASE_URL}${googlePageUrl}`
 
+    console.log(`start to parse: ${googlePageUrl}`)
     const data = await parseSingleSolarHtml(url)
+    console.log(`finish parse`)
+
     const solar = {
       date,
       type,
@@ -128,7 +133,7 @@ const parseSolarListHtml = async () => {
     )
 
     solarList.push(solar)
-  })
+  }
 
   fs.writeFile(
     `${__dirname}/data/2021/index.js`,
@@ -143,7 +148,7 @@ const parseSolarListHtml = async () => {
       ];
     `,
     (err, file) => err && console.log(err)
-  )  
+  )
 }
 
 //parseSingleSolarHtml('https://eclipse.gsfc.nasa.gov/SEgoogle/SEgoogle2001/SE2021Jun10Agoogle.html')

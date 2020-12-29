@@ -28,7 +28,10 @@
     "typescript": "^3.8.2"
   },
   "devDependencies": {
+    "cheerio": "^1.0.0-rc.3",
     "gatsby-plugin-material-ui": "^2.1.6",
+    "mkdirp": "^1.0.4",
+    "node-fetch": "^2.6.1",
     "prettier": "^1.19.1"
   },
   "license": "MIT",

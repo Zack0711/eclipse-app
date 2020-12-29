@@ -23,6 +23,8 @@ import {
 
 import eclipseSettings from '../../data'
 
+import eclipseData from '../../data/2021'
+
 import { cities } from '../../utils/cities'
 
 import { 
@@ -177,6 +179,8 @@ const Map = props => {
           window.initMap = () => setIsMapReady(true)
         }
       }
+
+      console.log(eclipseData)
     })()
   }, [])
 

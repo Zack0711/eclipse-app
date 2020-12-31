@@ -5,6 +5,7 @@ import classNames from "classnames"
 
 import Button from '@material-ui/core/Button'
 import ListIcon from '@material-ui/icons/List'
+import Modal from '@material-ui/core/Modal'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
 
@@ -13,6 +14,7 @@ import moment from "moment"
 import Popup from './popup'
 import Panel from './panel'
 import Timer from './timer'
+import SolarListMenu from './solar-list-menu'
 
 import GMap from '../../utils/google-map';
 import {
@@ -20,18 +22,15 @@ import {
   pathCoordsB2,
   pathCoordsR1,
 } from '../../utils/settings'
-
-// import eclipseSettings from '../../data'
-
-import eclipseSettings from '../../data/2021'
-
+import { eclipseType } from '../../utils/i18n'
 import { cities } from '../../utils/cities'
-
 import { 
   latitudeToString,
   longitudeToString,
   loc_circ,
 } from '../../utils/eclipse'
+
+import solarEclipseData from '../../data'
 
 import './index.styl'
 
@@ -53,9 +52,11 @@ const Map = props => {
   const [ panelShown, setPanelShown] = useState(false)
   const [ activePos, setActivePos] = useState(locationList[0].position)
   const [ cityData, setCityData] = useState([])
-  const [ settings, setSettings] = useState(eclipseSettings[0])
+  const [ settings, setSettings] = useState(null)
   const [ isMapReady, setIsMapReady] = useState(false)
+
   const [ anchorEl, setAnchorEl] = useState(null)
+  const [ menuOpen, setMenuOpen] = useState(false)  
 
   const toggleDirectionPanel = async open => {
     if(open) {
@@ -131,38 +132,16 @@ const Map = props => {
     setCityData(newCityData)
   }
 
-  const handlMenuClick = (event) => {
-    setAnchorEl(event.currentTarget)
+  const handlMenuOpen = () => {
+    setMenuOpen(true)
   }
 
   const handleMenuClose = () => {
-    setAnchorEl(null)
+    setMenuOpen(false)
   }
 
   useEffect( () => {
     ;(async () => {
-
-      let dT = Infinity
-      let selectedSettings = null
-      const current = new Date().getTime()
-
-      eclipseSettings.forEach(settings => {
-
-        const { lat, lng} = settings.data.firstRed[0][0]
-        const { mid, c3, c4 } = loc_circ(parseFloat(lat), parseFloat(lng), settings.data.elements)
-
-        const c3DateTime = c3.date ? new Date(c3.date).getTime() : 0
-        //if (c3.date) settings.date = new Date(c3.date)
-        //const dTime = settings.date.getTime() - current
-        const dTime = c3DateTime - current
-        if (dTime >= 0 && dTime < dT) {
-          dT = dTime
-          selectedSettings = settings
-        }
-      })
-
-      pickUpSettings(selectedSettings)
-
       if(!map){
         map = new GMap({
           map: mapEl.current,
@@ -178,19 +157,17 @@ const Map = props => {
           window.initMap = () => setIsMapReady(true)
         }
       }
-
-      // console.log(eclipseData)
     })()
   }, [])
 
   useEffect( () => {
     if(cityData.length > 0){
 
-      const firstRed = settings.data.firstRed[0]
+      const firstLine = settings.data.firstRed[0] || settings.data.firstBlue[0]
       const newActivePos = cityData[0].eclipseData.isEclipse && cityData[0].eclipseData.duration
-        ? cityData[0] : firstRed[Math.floor(firstRed.length/2)]
+        ? cityData[0] : firstLine[Math.floor(firstLine.length/2)]
 
-      // changeActivePos(newActivePos)
+      changeActivePos(newActivePos)
       cityData.forEach( d => {
         map.addMarker({
           position: { lat: d.lat, lng: d.lng},
@@ -201,16 +178,14 @@ const Map = props => {
   }, [cityData])
 
   useEffect( () => {
-    /*
-    if(process.browser && window.IS_MAP_READY){
+    if(process.browser && window.IS_MAP_READY && settings){
       drawMapPath()
       countCityData()
     }
-    */
   }, [settings])
 
   useEffect( () => {
-    // if(isMapReady) mapInitialize()
+    if(isMapReady) mapInitialize()
   }, [isMapReady])
 
   return (
@@ -226,29 +201,22 @@ const Map = props => {
           </div>
           <div className="map__data-switch">
             <div className="map__data-switch__title">
-              <Button aria-haspopup="true" onClick={handlMenuClick}>
-                已選取的日食資料：{ moment(settings.date).format('YYYY-MM-DD') } <ListIcon />
+              <Button aria-haspopup="true" onClick={handlMenuOpen}>
+                已選取的日食資料：{ settings && `${moment(settings.date).format('YYYY-MM-DD')} (${eclipseType[settings.type]}) ` } <ListIcon />
               </Button>
             </div>
-            <Menu
-              anchorEl={anchorEl}
-              keepMounted
-              open={Boolean(anchorEl)}
+            <Modal
+              open={menuOpen}
               onClose={handleMenuClose}
+              keepMounted={true}
             >
-              {
-                eclipseSettings.map( d => (
-                  <MenuItem 
-                    onClick={() => pickUpSettings(d)}
-                    className={
-                      classNames('map__data-switch__item', { 'map__data-switch__item--active': d.name === settings.name })
-                    }
-                  >
-                    { moment(d.date).format('YYYY-MM-DD') }
-                  </MenuItem>
-                ))
-              }
-            </Menu>
+              <SolarListMenu
+                data={solarEclipseData}
+                pickUpSettings={pickUpSettings}
+                selectedSettings={settings}
+                closeMenu={handleMenuClose}
+              />
+            </Modal>
          </div>
         </div>
         <div className="map__cities">
@@ -277,7 +245,7 @@ const Map = props => {
       <Popup 
         pos={activePos}
         getRef={popupEl}
-        elements = {settings.data.elements}
+        elements = {settings ? settings.data.elements : []}
         openDirection={() => toggleDirectionPanel(true)}
       />
     </div>

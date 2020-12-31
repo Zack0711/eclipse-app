@@ -90,10 +90,10 @@ const parseSingleSolarHtml =  url => new Promise( async (resolve, reject) => {
   })
 })
 
-const parseSolarListHtml = async () => {
-  await mkdirp.sync(__dirname + '/data/2021')
+const parseSolarListHtml = async (year) => {
+  await mkdirp.sync(__dirname + `/data/${year}`)
 
-  const url = 'https://eclipse.gsfc.nasa.gov/SEgoogle/SEgoogle2021.html'
+  const url = `https://eclipse.gsfc.nasa.gov/SEgoogle/SEgoogle${year}.html`
   const $ = await parseHtmlPage(url)
 
   const solarList = []
@@ -122,7 +122,7 @@ const parseSolarListHtml = async () => {
     }
 
     fs.writeFile(
-      `${__dirname}/data/2021/${fileName}.js`,
+      `${__dirname}/data/${year}/${fileName}.js`,
       `
         const solarData = ${JSON.stringify(solar)};
         export default solarData;
@@ -136,7 +136,7 @@ const parseSolarListHtml = async () => {
   }
 
   fs.writeFile(
-    `${__dirname}/data/2021/index.js`,
+    `${__dirname}/data/${year}/index.js`,
     `
       ${
         solarList.map( (d,i) => `
@@ -152,4 +152,29 @@ const parseSolarListHtml = async () => {
 }
 
 //parseSingleSolarHtml('https://eclipse.gsfc.nasa.gov/SEgoogle/SEgoogle2001/SE2021Jun10Agoogle.html')
-parseSolarListHtml()
+const parseSolarEclipses = async () => {
+  await mkdirp.sync(__dirname + `/data`)
+
+  const list = [
+    '1901', '1921', '1941', '1961', '1981',
+    '2001', '2021', '2041', '2061', '2081',
+  ]
+  for(let i = 0; i < list.length; i += 1) {
+    await parseSolarListHtml(list[i])
+  }
+
+  fs.writeFile(
+    `${__dirname}/data/index.js`,
+    `${list.map( year => `
+      import D_${year} from './${year}';
+    `).join('')}
+      export default [
+        ${list.map( year => `{ year: ${year}, data: D_${year}},
+        `).join('')}
+      ];`,
+    (err, file) => err && console.log(err)
+  )
+
+}
+
+parseSolarEclipses()

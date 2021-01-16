@@ -46,8 +46,8 @@ const EclipseInfo = ({ data }) => {
                 <TableCell component="th" scope="row">
                   {row.label}
                 </TableCell>
-                <TableCell>{moment(row.date).format('YYYY/MM/DD')}</TableCell>
-                <TableCell>{moment(row.date).format('HH:mm:ss')}</TableCell>
+                <TableCell>{moment.utc(row.date).format('YYYY/MM/DD')}</TableCell>
+                <TableCell>{moment.utc(row.date).format('HH:mm:ss')}</TableCell>
                 <TableCell>{`${row.alt}°`}</TableCell>
                 <TableCell>{`${row.azi}°`}</TableCell>
               </TableRow>

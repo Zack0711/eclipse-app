@@ -32,8 +32,8 @@ const Timer = ({ className, pos, elements }) => {
         const hours = Math.floor(left/60/60) % 24
         const days = Math.floor(left/60/60/24)
 
-        dateString = moment(eclipseTime).format()
-        // dateString = `${eclipseTime.getFullYear()}年${eclipseTime.getMonth()+1}月${eclipseTime.getDate()}日${eclipseTime.getHours()}時${eclipseTime.getMinutes()}分${eclipseTime.getSeconds()}秒`
+        dateString = moment.utc(eclipseTime).format()
+        //dateString = moment.utc(eclipseTime).toISOString()
         countString = `倒數${days}天${hours}時${mins}分${secs}秒`        
       }
 

@@ -1,0 +1,50 @@
+{
+  "name": "eclipse-app",
+  "private": true,
+  "description": "",
+  "version": "0.1.0",
+  "author": "Zack <zacklai.0711@gmail.com>",
+  "dependencies": {
+    "@material-ui/core": "^4.9.7",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/styles": "^4.9.6",
+    "@types/react": "^16.9.22",
+    "classnames": "^2.2.6",
+    "gatsby": "^2.19.7",
+    "gatsby-image": "^2.2.39",
+    "gatsby-plugin-manifest": "^2.2.39",
+    "gatsby-plugin-offline": "^3.0.32",
+    "gatsby-plugin-react-helmet": "^3.1.21",
+    "gatsby-plugin-sharp": "^2.4.3",
+    "gatsby-plugin-stylus": "^2.2.0",
+    "gatsby-source-filesystem": "^2.2.1",
+    "gatsby-transformer-csv": "^2.2.0",
+    "gatsby-transformer-sharp": "^2.3.13",
+    "moment": "^2.24.0",
+    "prop-types": "^15.7.2",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-helmet": "^5.2.1",
+    "typescript": "^3.8.2"
+  },
+  "devDependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "gatsby-plugin-material-ui": "^2.1.6",
+    "mkdirp": "^1.0.4",
+    "node-fetch": "^2.6.1",
+    "prettier": "^1.19.1"
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "gatsby build",
+    "develop": "gatsby develop",
+    "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
+    "start": "npm run develop",
+    "serve": "gatsby serve",
+    "clean": "gatsby clean"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Zack0711/eclipse-app"
+  }
+}

@@ -1,0 +1,66 @@
+@import '../../mixin'
+
+.map
+  &__wrap
+    width 100vw
+    height 100vh
+    background #ccc
+    $display-flex(row, center, stretch)
+    
+  &__panel
+    width 0px
+    height 100%
+    overflow-x hidden
+    overflow-y auto
+    transition width .5s
+    
+    &--opened
+      width 320px
+  
+  &__container
+    flex 1 0 0
+    position relative
+    
+  &__instance
+    width 100%
+    height 100%
+    
+  &__data-switch
+    position absolute
+    top 16px
+    left 16px
+    background white
+    padding 8px
+    
+    &__title
+      $display-flex()
+    
+    &__item
+      padding 8px
+      opacity 0.6
+      
+      &:hover
+        opacity 1
+      
+      &--active
+        opacity 1
+        color blue
+    
+  &__cities
+    height 100vh
+    background white
+    overflow-y auto
+    
+  &__city-item
+    padding 8px 16px
+    $display-flex()
+  
+  &__city-item-name
+    width 120px
+    flex 1 0 0
+
+  &__city-item-duration
+  &__city-item-coverage
+  &__city-item-maxmag
+    width 64px
+    margin 0 8px

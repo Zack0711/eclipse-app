@@ -30,5 +30,5 @@ module.exports = {
       },
     },
   ],
-  pathPrefix: './',
+  pathPrefix: 'eclipse-app/public/',
 }

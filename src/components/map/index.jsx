@@ -29,6 +29,7 @@ import {
   longitudeToString,
   loc_circ,
 } from '../../utils/eclipse'
+import { isBrowser } from '../../utils/ua-sniff'
 
 import solarEclipseData from '../../data'
 
@@ -76,7 +77,7 @@ const Map = props => {
   }
 
   const mapInitialize = () => {
-    if(process.browser) window.IS_MAP_READY = true
+    if(isBrowser()) window.IS_MAP_READY = true
     map.initMap()
     map.moveMap(activePos)
     map.setMapClick( pos => { changeActivePos(pos) })
@@ -150,7 +151,7 @@ const Map = props => {
         })
       }
 
-      if(process.browser){
+      if(isBrowser()){
         if(window.IS_MAP_READY){
           setIsMapReady(true)
         }else{
@@ -178,7 +179,7 @@ const Map = props => {
   }, [cityData])
 
   useEffect( () => {
-    if(process.browser && window.IS_MAP_READY && settings){
+    if(isBrowser() && window.IS_MAP_READY && settings){
       drawMapPath()
       countCityData()
     }

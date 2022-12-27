@@ -83,7 +83,7 @@ const Popup = ({ getRef, openDirection, pos, elements }) => {
               info && (
                 <div>
                   <div className='popup__header'>
-                    <div className='popup__title'>{`${info.city} | ${info.country}`}</div>
+                    <div className='popup__title'>{`${info.city}${info.country ? ' | ' + info.country : ''}`}</div>
                   </div>
                   <div className='popup__main'>
                     <div className='popup__row'>

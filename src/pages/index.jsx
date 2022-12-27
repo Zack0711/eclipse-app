@@ -3,8 +3,9 @@ import React from "react"
 import Layout from "../components/layout"
 import SEO from "../components/seo"
 import Map from '../components/map'
+import { isBrowser } from '../utils/ua-sniff'
 
-if(process.browser){
+if(isBrowser()){
   window.IS_MAP_READY = false
   window.initMap = () => {
       console.log('initMap')

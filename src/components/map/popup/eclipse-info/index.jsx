@@ -19,9 +19,9 @@ const EclipseInfo = ({ data }) => {
   useEffect(() => {
     const newRows = []
     data.c1.date && newRows.push({ label: '初虧', ...data.c1})
-    data.c2.date && newRows.push({ label: '環食始', ...data.c2})
+    data.c2.date && newRows.push({ label: '全食或環食始', ...data.c2})
     data.mid.date && newRows.push({ label: '食甚', ...data.mid})
-    data.c3.date && newRows.push({ label: '環食終', ...data.c3})
+    data.c3.date && newRows.push({ label: '全食或環食終', ...data.c3})
     data.c4.date && newRows.push({ label: '復圓', ...data.c4})
 
     setRows(newRows)

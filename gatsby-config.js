@@ -5,21 +5,7 @@ module.exports = {
     author: ``,
   },
   plugins: [
-    `gatsby-plugin-react-helmet`,
-    /*
-    {
-      resolve: `gatsby-source-filesystem`,
-      options: {
-        name: `assests`,
-        path: `${__dirname}/src/assests`,
-      },
-    },
-    `gatsby-transformer-csv`,
-    `gatsby-transformer-sharp`,
-    `gatsby-plugin-sharp`,
-    */
     `gatsby-plugin-stylus`,
-    `gatsby-plugin-material-ui`,
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
@@ -30,5 +16,5 @@ module.exports = {
       },
     },
   ],
-  pathPrefix: 'eclipse-app/public/',
+  pathPrefix: 'eclipse-spalch/',
 }
